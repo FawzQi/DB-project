@@ -154,7 +154,7 @@ export default function Scoring({ scores, onUpdateScores }: ScoreProps) {
                             id="InputValue"
                             value={newValue[0]}
                             onChange={(e) =>
-                              setNewValue([Number(e.target.value)])
+                              setNewValue([Number(e.target.value), 0])
                             }
                           />
                         </>

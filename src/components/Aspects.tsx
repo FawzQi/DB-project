@@ -109,7 +109,16 @@ export default function Aspect({ aspect, onUpdateAspect }: AspectProps) {
             </div>
           </div>
 
-          <SubAspect subaspects={aspect.subaspects} />
+          <SubAspect
+            subaspects={aspect.subaspects}
+            onUpdateSubaspects={(newSubaspects) => {
+              const updatedAspects = aspectList.map((asp, i) =>
+                i === index ? { ...asp, subaspects: newSubaspects } : asp
+              );
+              setAspectList(updatedAspects);
+              onUpdateAspect(updatedAspects);
+            }}
+          />
         </div>
       ))}
     </>

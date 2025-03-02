@@ -7,9 +7,13 @@ interface Subaspect {
 
 interface SubAspectProps {
   subaspects: Subaspect[];
+  onUpdateSubaspects: (newSubaspects: Subaspect[]) => void;
 }
 
-export default function SubAspect({ subaspects }: SubAspectProps) {
+export default function SubAspect({
+  subaspects,
+  onUpdateSubaspects,
+}: SubAspectProps) {
   // State untuk menyimpan daftar subkategori
   const [subaspectList, setSubaspectList] = useState<Subaspect[]>(subaspects);
   const [newSubaspect, setNewSubaspect] = useState<string>("");
@@ -22,18 +26,22 @@ export default function SubAspect({ subaspects }: SubAspectProps) {
   // Handle Add Subaspect
   const handleAddSubaspect = () => {
     if (newSubaspect.trim() === "") return; // Cegah input kosong
-    setSubaspectList((prevSubaspects) => [
-      ...prevSubaspects,
-      { name: newSubaspect, value: Date.now() }, // ID unik
-    ]);
-    setNewSubaspect(""); // Reset input
+    const newSubaspectObj = {
+      name: newSubaspect,
+      value: 0, // Generate random value
+    };
+    setSubaspectList([...subaspectList, newSubaspectObj]);
+    setNewSubaspect("");
+    onUpdateSubaspects([...subaspectList, newSubaspectObj]);
   };
 
   // Handle Delete Subaspect
   const handleDeleteSubaspect = (value: number) => {
-    setSubaspectList((prevSubaspects) =>
-      prevSubaspects.filter((sub) => sub.value !== value)
+    const updatedSubaspects = subaspectList.filter(
+      (subaspect) => subaspect.value !== value
     );
+    setSubaspectList(updatedSubaspects);
+    onUpdateSubaspects(updatedSubaspects);
   };
 
   return (
