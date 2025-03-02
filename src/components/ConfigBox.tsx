@@ -22,7 +22,8 @@ enum Operator {
 
 interface Score {
   operator: Operator;
-  value: number[];
+  upper: number;
+  lower: number;
   status: string;
 }
 

@@ -41,8 +41,8 @@ const myData = [
       },
     ],
     scores: [
-      { operator: 0, value: [1, 3], status: "good" },
-      { operator: 3, value: [4], status: "bad" },
+      { operator: 0, upper: 100, lower: 3, status: "good" },
+      { operator: 3, upper: 0, lower: 0, status: "bad" },
     ],
   },
   {
@@ -67,8 +67,8 @@ const myData = [
       },
     ],
     scores: [
-      { operator: 0, value: [1, 3], status: "good" },
-      { operator: 2, value: [4], status: "bad" },
+      { operator: 0, upper: 10, lower: 3, status: "good" },
+      { operator: 2, upper: 0, lower: 0, status: "bad" },
     ],
   },
 ];
@@ -93,7 +93,8 @@ enum Operator {
 
 interface Score {
   operator: Operator;
-  value: number[];
+  upper: number;
+  lower: number;
   status: string;
 }
 

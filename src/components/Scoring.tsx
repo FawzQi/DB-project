@@ -10,7 +10,8 @@ enum Operator {
 
 interface Score {
   operator: Operator;
-  value: number[];
+  upper: number;
+  lower: number;
   status: string;
 }
 
@@ -23,13 +24,15 @@ export default function Scoring({ scores, onUpdateScores }: ScoreProps) {
   const [scoresList, setScoresList] = useState<Score[]>(scores);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [newOperator, setNewOperator] = useState<Operator>(Operator.IN_RANGE);
-  const [newValue, setNewValue] = useState<number[]>([0, 0]);
   const [newStatus, setNewStatus] = useState<string>("New Status");
+  const [newUpper, setNewUpper] = useState<number>(0);
+  const [newLower, setNewLower] = useState<number>(0);
 
   const handleEditButton = (index: number) => {
     setEditIndex(index);
     setNewOperator(scoresList[index].operator);
-    setNewValue(scoresList[index].value);
+    setNewUpper(scoresList[index].upper);
+    setNewLower(scoresList[index].lower);
     setNewStatus(scoresList[index].status);
   };
 
@@ -46,7 +49,8 @@ export default function Scoring({ scores, onUpdateScores }: ScoreProps) {
       i === index
         ? {
             operator: newOperator,
-            value: newValue,
+            upper: newUpper,
+            lower: newLower,
             status: newStatus,
           }
         : score
@@ -61,7 +65,8 @@ export default function Scoring({ scores, onUpdateScores }: ScoreProps) {
       ...scoresList,
       {
         operator: Operator.IN_RANGE,
-        value: [0, 1],
+        upper: 1,
+        lower: 0,
         status: "New Status",
       },
     ];
@@ -127,9 +132,9 @@ export default function Scoring({ scores, onUpdateScores }: ScoreProps) {
                             className="form-control"
                             placeholder="Batas Atas"
                             id="SelectRangeAtas"
-                            value={newValue[1]}
+                            value={newUpper}
                             onChange={(e) =>
-                              setNewValue([newValue[0], Number(e.target.value)])
+                              setNewUpper(Number(e.target.value))
                             }
                           />
                           <label htmlFor="SelectRangeBawah">Batas Bawah </label>{" "}
@@ -138,9 +143,9 @@ export default function Scoring({ scores, onUpdateScores }: ScoreProps) {
                             className="form-control"
                             placeholder="Batas Bawah"
                             id="SelectRangeBawah"
-                            value={newValue[0]}
+                            value={newLower}
                             onChange={(e) =>
-                              setNewValue([Number(e.target.value), newValue[1]])
+                              setNewLower(Number(e.target.value))
                             }
                           />
                         </>
@@ -152,9 +157,9 @@ export default function Scoring({ scores, onUpdateScores }: ScoreProps) {
                             className="form-control"
                             placeholder="Nilai"
                             id="InputValue"
-                            value={newValue[0]}
+                            value={newLower}
                             onChange={(e) =>
-                              setNewValue([Number(e.target.value), 0])
+                              setNewLower(Number(e.target.value))
                             }
                           />
                         </>
@@ -191,14 +196,14 @@ export default function Scoring({ scores, onUpdateScores }: ScoreProps) {
                   <>
                     <td>
                       {score.operator === Operator.IN_RANGE
-                        ? score.value.join(" - ")
+                        ? `${score.upper} - ${score.lower}`
                         : score.operator === Operator.GREATER_THAN
-                        ? `> ${score.value[0]}`
+                        ? `> ${score.lower}`
                         : score.operator === Operator.LESS_THAN
-                        ? `< ${score.value[0]}`
+                        ? `< ${score.lower}`
                         : score.operator === Operator.GREATER_THAN_OR_EQUAL
-                        ? `>= ${score.value[0]}`
-                        : `<= ${score.value[0]}`}
+                        ? `>= ${score.lower}`
+                        : `<= ${score.lower}`}
                     </td>
                     <td>{score.status}</td>
                     <td className="d-flex gap-2">

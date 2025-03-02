@@ -23,7 +23,8 @@ enum Operator {
 
 interface Score {
   operator: Operator;
-  value: number[];
+  upper: number;
+  lower: number;
   status: string;
 }
 
@@ -203,12 +204,12 @@ export default function FormTable({ formData }: FormDataProps) {
               {score.operator === Operator.IN_RANGE ? (
                 <td>
                   {" "}
-                  {`${score.value[0]} ${operatorSign[score.operator]} ${
-                    score.value[1]
+                  {`${score.upper} ${operatorSign[score.operator]} ${
+                    score.lower
                   }`}{" "}
                 </td>
               ) : (
-                <td> {`${operatorSign[score.operator]} ${score.value[0]}`} </td>
+                <td> {`${operatorSign[score.operator]} ${score.lower}`} </td>
               )}
               <td>{score.status}</td>
               {scoreIndex === 0 && (
