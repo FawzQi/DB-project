@@ -13,9 +13,10 @@ interface Aspect {
 
 interface AspectProps {
   aspect: Aspect[];
+  onUpdateAspect: (newAspects: Aspect[]) => void;
 }
 
-export default function Aspect({ aspect }: AspectProps) {
+export default function Aspect({ aspect, onUpdateAspect }: AspectProps) {
   const [aspectList, setAspectList] = useState<Aspect[]>(aspect);
   const [newAspect, setNewAspect] = useState<string>("");
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -29,27 +30,28 @@ export default function Aspect({ aspect }: AspectProps) {
 
   // Simpan perubahan
   const handleSaveEdit = (index: number) => {
-    setAspectList((prevAspects) =>
-      prevAspects.map((aspect, i) =>
-        i === index ? { ...aspect, name: editText } : aspect
-      )
+    const updatedAspects = aspectList.map((aspect, i) =>
+      i === index ? { ...aspect, name: editText } : aspect
     );
+    setAspectList(updatedAspects);
     setEditingIndex(null); // Keluar dari mode edit
+    onUpdateAspect(updatedAspects); // Panggil update di sini
   };
 
   // Hapus aspek
   const handleDeleteAspect = (index: number) => {
-    setAspectList((prevAspects) => prevAspects.filter((_, i) => i !== index));
+    const updatedAspects = aspectList.filter((_, i) => i !== index);
+    setAspectList(updatedAspects);
+    onUpdateAspect(updatedAspects); // Panggil update di sini
   };
 
   // Tambah aspek baru
   const handleAddAspect = () => {
     if (newAspect.trim() === "") return;
-    setAspectList((prevAspects) => [
-      ...prevAspects,
-      { name: newAspect, subaspects: [] },
-    ]);
+    const updatedAspects = [...aspectList, { name: newAspect, subaspects: [] }];
+    setAspectList(updatedAspects);
     setNewAspect("");
+    onUpdateAspect(updatedAspects); // Panggil update di sini
   };
 
   return (
@@ -108,7 +110,6 @@ export default function Aspect({ aspect }: AspectProps) {
           </div>
 
           <SubAspect subaspects={aspect.subaspects} />
-          {/* <div className="mb-4 pb-3 border-bottom"></div> */}
         </div>
       ))}
     </>

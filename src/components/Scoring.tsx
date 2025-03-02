@@ -16,9 +16,10 @@ interface Score {
 
 interface ScoreProps {
   scores: Score[];
+  onUpdateScores: (newScores: Score[]) => void;
 }
 
-export default function Scoring({ scores }: ScoreProps) {
+export default function Scoring({ scores, onUpdateScores }: ScoreProps) {
   const [scoresList, setScoresList] = useState<Score[]>(scores);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [newOperator, setNewOperator] = useState<Operator>(Operator.IN_RANGE);
@@ -27,6 +28,9 @@ export default function Scoring({ scores }: ScoreProps) {
 
   const handleEditButton = (index: number) => {
     setEditIndex(index);
+    setNewOperator(scoresList[index].operator);
+    setNewValue(scoresList[index].value);
+    setNewStatus(scoresList[index].status);
   };
 
   const handleCancelButton = () => {
@@ -38,33 +42,37 @@ export default function Scoring({ scores }: ScoreProps) {
   };
 
   const handleSaveEdit = (index: number) => {
-    setScoresList((prevScores) =>
-      prevScores.map((score, i) =>
-        i === index
-          ? {
-              operator: newOperator,
-              value: newValue,
-              status: newStatus,
-            }
-          : score
-      )
+    const updatedScores = scoresList.map((score, i) =>
+      i === index
+        ? {
+            operator: newOperator,
+            value: newValue,
+            status: newStatus,
+          }
+        : score
     );
+    setScoresList(updatedScores);
     setEditIndex(null);
+    onUpdateScores(updatedScores);
   };
 
   const handleAddScore = () => {
-    setScoresList((prevScores) => [
-      ...prevScores,
+    const updatedScores = [
+      ...scoresList,
       {
         operator: Operator.IN_RANGE,
         value: [0, 1],
         status: "New Status",
       },
-    ]);
+    ];
+    setScoresList(updatedScores);
+    onUpdateScores(updatedScores);
   };
 
   const handleDeleteScore = (index: number) => {
-    setScoresList((prevScores) => prevScores.filter((_, i) => i !== index));
+    const updatedScores = scoresList.filter((_, i) => i !== index);
+    setScoresList(updatedScores);
+    onUpdateScores(updatedScores);
   };
 
   return (
@@ -184,19 +192,13 @@ export default function Scoring({ scores }: ScoreProps) {
                     <td>
                       {score.operator === Operator.IN_RANGE
                         ? score.value.join(" - ")
-                        : null}
-                      {score.operator === Operator.GREATER_THAN
+                        : score.operator === Operator.GREATER_THAN
                         ? `> ${score.value[0]}`
-                        : null}
-                      {score.operator === Operator.LESS_THAN
+                        : score.operator === Operator.LESS_THAN
                         ? `< ${score.value[0]}`
-                        : null}
-                      {score.operator === Operator.GREATER_THAN_OR_EQUAL
+                        : score.operator === Operator.GREATER_THAN_OR_EQUAL
                         ? `>= ${score.value[0]}`
-                        : null}
-                      {score.operator === Operator.LESS_THAN_OR_EQUAL
-                        ? `<= ${score.value[0]}`
-                        : null}
+                        : `<= ${score.value[0]}`}
                     </td>
                     <td>{score.status}</td>
                     <td className="d-flex gap-2">
