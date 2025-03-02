@@ -1,5 +1,4 @@
 import React from "react";
-
 interface Subaspect {
   name: string;
   value: number;
@@ -10,9 +9,9 @@ interface Aspect {
   subaspects: Subaspect[];
 }
 
-interface AspectProps {
-  aspect: Aspect[];
-}
+// interface AspectProps {
+//   aspect: Aspect[];
+// }
 
 enum Operator {
   IN_RANGE = 1,
@@ -38,132 +37,207 @@ interface FormDataProps {
   formDatas: FormData[];
 }
 
-export default function ScoringTable({ formDatas }: FormDataProps) {
-  const getIndexWithMostSubaspects = (aspects: Aspect[]): number => {
-    let maxSubaspects = 0;
-    let indexWithMostSubaspects = -1;
-
-    aspects.forEach((aspect, index) => {
-      if (aspect.subaspects.length > maxSubaspects) {
-        maxSubaspects = aspect.subaspects.length;
-        indexWithMostSubaspects = index;
+export default function FormTable({ formDatas }: FormDataProps) {
+  const getAspectIndexWithMaxSubaspect = (aspects: Aspect[]) => {
+    let max = 0;
+    let index = 0;
+    aspects.forEach((aspect, aspectIndex) => {
+      if (aspect.subaspects.length > max) {
+        max = aspect.subaspects.length;
+        index = aspectIndex;
       }
     });
-
-    return indexWithMostSubaspects;
+    return index;
   };
 
-  const indexWithMostSubaspects = getIndexWithMostSubaspects(
-    formDatas[0].aspect
-  );
-  console.log("Index with most subaspects:", indexWithMostSubaspects);
+  const FormDataAspectIndexWithMostSubaspect: number[] = [];
+  formDatas.map((formData) => {
+    FormDataAspectIndexWithMostSubaspect.push(
+      getAspectIndexWithMaxSubaspect(formData.aspect)
+    );
+  });
+
+  const getMaxSubaspect = (aspects: Aspect[]) => {
+    let max = 0;
+    aspects.forEach((aspect) => {
+      if (aspect.subaspects.length > max) {
+        max = aspect.subaspects.length;
+      }
+    });
+    return max;
+  };
+
+  const FormDataMaxSubAspect: number[] = [];
+  formDatas.map((formData) => {
+    FormDataMaxSubAspect.push(getMaxSubaspect(formData.aspect));
+    console.log(getMaxSubaspect(formData.aspect));
+  });
+
+  const operatorSign = ["-", ">", "<", ">=", "<="];
 
   return (
     <>
       {formDatas.map((formData, formIndex) => (
-        <div className="container mt-4" key={formIndex}>
-          <h4 className="text-center mb-3">LEMBAR PENILAIAN</h4>
-
-          <div className="mb-3 border p-3">
-            <strong>Nama Project: {formData.name}</strong>
-            <input
-              type="text"
-              className="form-control mt-2"
-              placeholder="Masukkan nama project..."
-            />
-          </div>
-
+        <div key={`${formData.name}-${formIndex}`}>
           <table className="table table-bordered text-center">
-            <thead className="table-success">
+            <thead>
               <tr>
-                <th colSpan={2 * formData.aspect.length}>
-                  Nama Project: {formData.name}
+                <th
+                  className="table-success "
+                  colSpan={formData.aspect.length * 2 + 2}
+                >
+                  lembar penilaian
                 </th>
-                <th colSpan={2}>Doc V8976479649298</th>
               </tr>
               <tr>
-                <th rowSpan={2}>NO</th>
+                <th
+                  colSpan={formData.aspect.length * 2}
+                  style={{ textAlign: "left" }}
+                >
+                  Project Name {formData.name}
+                </th>
+                <th colSpan={2} style={{ textAlign: "left" }}>
+                  Doc
+                </th>
+              </tr>
+              <tr>
+                <th rowSpan={2}>No</th>
                 <th rowSpan={2}>Chapter</th>
-                {formData.aspect.map((aspect, aspectIndex) => (
-                  <th key={aspectIndex} colSpan={2}>
-                    {aspect.name}
+                {formData.aspect.map((aspect, index) => (
+                  <th key={`${aspect.name}-${index}`} colSpan={2}>
+                    {aspect.name}{" "}
                   </th>
                 ))}
               </tr>
               <tr>
-                {formData.aspect.map((_, aspectIndex) => (
-                  <React.Fragment key={aspectIndex}>
-                    <th>Sub-Aspek</th>
-                    <th>Jumlah Kesalahan</th>
+                {formData.aspect.map((_, index) => (
+                  <React.Fragment key={`subaspect-header-${index}`}>
+                    <th>Sub-Aspek </th>
+                    <th>Kesalahan </th>
                   </React.Fragment>
                 ))}
               </tr>
+              <tr>
+                <th
+                  className="table-success"
+                  colSpan={formData.aspect.length * 2 + 2}
+                ></th>
+              </tr>
             </thead>
             <tbody>
-              {formData.aspect[indexWithMostSubaspects]?.subaspects.map(
-                (_, subIndex) => (
-                  <tr key={subIndex}>
-                    {subIndex === 0 && (
+              {formData.aspect[
+                FormDataAspectIndexWithMostSubaspect[formIndex]
+              ].subaspects.map((_, subaspectIndex) => (
+                <React.Fragment key={`subaspect-row-${subaspectIndex}`}>
+                  <tr>
+                    {subaspectIndex == 0 && (
                       <>
-                        <td
-                          rowSpan={
-                            formData.aspect[indexWithMostSubaspects]?.subaspects
-                              .length
-                          }
-                        ></td>
-                        <td
-                          rowSpan={
-                            formData.aspect[indexWithMostSubaspects]?.subaspects
-                              .length
-                          }
-                        ></td>
+                        <td rowSpan={FormDataMaxSubAspect[formIndex] + 2}>
+                          {" "}
+                          a
+                        </td>
+                        <td rowSpan={FormDataMaxSubAspect[formIndex] + 2}>
+                          a{" "}
+                        </td>
                       </>
                     )}
-                    {formData.aspect.map((aspect, aspectIndex) => (
-                      <React.Fragment key={aspectIndex}>
-                        <td>{aspect.subaspects[subIndex]?.name || "-"}</td>
-                        <td>{aspect.subaspects[subIndex]?.value ?? "-"}</td>
+                    {formData.aspect.map((aspect, index) => (
+                      <React.Fragment key={`${aspect.name}-subaspect-${index}`}>
+                        {subaspectIndex < aspect.subaspects.length ? (
+                          <>
+                            <td>{aspect.subaspects[subaspectIndex].name}</td>
+                            <td>{aspect.subaspects[subaspectIndex].value}</td>
+                          </>
+                        ) : (
+                          <>
+                            <td>-</td>
+                            <td>-</td>
+                          </>
+                        )}
                       </React.Fragment>
                     ))}
                   </tr>
-                )
-              )}
-              <tr className="table-warning">
-                <td colSpan={2}>Total Kesalahan</td>
-                <td colSpan={2}>V = a+b+c+d</td>
-                <td colSpan={2}>W</td>
-                <td colSpan={2}>X</td>
-                <td colSpan={2}>Y</td>
+                </React.Fragment>
+              ))}
+              <tr>
+                <th
+                  className="table-success"
+                  colSpan={formData.aspect.length * 2}
+                ></th>
               </tr>
+              <tr>
+                {formData.aspect.map((aspect, index) => {
+                  let totalKesalahan = 0;
+                  aspect.subaspects.forEach((subaspect) => {
+                    totalKesalahan += subaspect.value;
+                  });
+                  return (
+                    <React.Fragment key={`total-kesalahan-${index}`}>
+                      <td>total Kesalahan </td>
+                      <td>{totalKesalahan} </td>
+                    </React.Fragment>
+                  );
+                })}
+              </tr>
+              <tr>
+                <th
+                  className="table-success"
+                  colSpan={formData.aspect.length * 2 + 2}
+                ></th>
+              </tr>
+              <tr style={{ textAlign: "left" }}>
+                <th colSpan={2}>Bobot Chapter</th>
+                <th colSpan={formData.aspect.length - 1}>Total Kesalahan :</th>
+                <th className="table-success"></th>
+                <th colSpan={formData.aspect.length}>Predikat</th>
+              </tr>
+              <tr style={{ textAlign: "left" }}>
+                <th colSpan={2}>Nilai Bobot Chapter</th>
+                <th colSpan={formData.aspect.length - 1}>Total Nilai :</th>
+                <th className="table-success"></th>
+                <th colSpan={formData.aspect.length}>Status</th>
+              </tr>
+              <tr>
+                <th
+                  colSpan={formData.aspect.length * 2 + 2}
+                  className="table-success"
+                ></th>
+              </tr>
+              {formData.scores.map((score, scoreIndex) => (
+                <tr key={`score-row-${scoreIndex}`}>
+                  {score.operator === Operator.IN_RANGE ? (
+                    <td>
+                      {" "}
+                      {`${score.value[0]} ${operatorSign[score.operator]} ${
+                        score.value[1]
+                      }`}{" "}
+                    </td>
+                  ) : (
+                    <td>
+                      {" "}
+                      {`${operatorSign[score.operator]} ${score.value[0]}`}{" "}
+                    </td>
+                  )}
+                  <td>{score.status}</td>
+                  {scoreIndex === 0 && (
+                    <>
+                      {/* <td rowSpan={formData.scores.length}></td> */}
+                      <td
+                        colSpan={formData.aspect.length * 2 - 1}
+                        rowSpan={formData.aspect.length}
+                      >
+                        catatan penguji:
+                      </td>
+                      <td rowSpan={formData.scores.length}>
+                        tanda tangan penguji
+                      </td>
+                    </>
+                  )}
+                </tr>
+              ))}
             </tbody>
           </table>
-
-          <div className="border p-3 mt-3">
-            <p>
-              <strong>Bobot Chapter:</strong> TOTAL KESALAHAN = V + W + X + Y
-            </p>
-            <p>
-              <strong>Nilai Bobot Chapter:</strong> TOTAL NILAI = 90 - [TOTAL
-              KESALAHAN]
-            </p>
-            <p>
-              <strong>Predikat:</strong> <span className="border p-2"></span>
-            </p>
-            <p>
-              <strong>Status:</strong> [LANJUT] [ULANG]
-            </p>
-          </div>
-
-          <div className="mt-3 row">
-            <div className="col-md-6">
-              <strong>Catatan Penguji:</strong>
-              <textarea className="form-control mt-2" rows={3}></textarea>
-            </div>
-            <div className="col-md-6 text-end">
-              <strong>Tanda Tangan Penguji:</strong>
-              <div className="border mt-2 p-4"></div>
-            </div>
-          </div>
+          <div className="py-3"> </div>
         </div>
       ))}
     </>

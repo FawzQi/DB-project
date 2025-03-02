@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 enum Operator {
-  IN_RANGE = 1,
+  IN_RANGE = 0,
   GREATER_THAN,
   LESS_THAN,
   GREATER_THAN_OR_EQUAL,

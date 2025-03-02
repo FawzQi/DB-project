@@ -1,5 +1,5 @@
 import ConfigBox from "./components/ConfigBox";
-import ScoringTable from "./components/Table";
+import FormTable from "./components/Table";
 
 const data = [
   {
@@ -7,6 +7,7 @@ const data = [
     subaspects: [
       { name: "Apple", value: 1 },
       { name: "Banana", value: 2 },
+      { name: "Orange", value: 3 },
     ],
   },
   {
@@ -51,7 +52,6 @@ const formData = [
           { name: "Apple", value: 1 },
           { name: "Banana", value: 2 },
           { name: "Orange", value: 3 },
-          { name: "Grape", value: 4 },
         ],
       },
       {
@@ -65,13 +65,13 @@ const formData = [
       },
     ],
     scores: [
-      { operator: 1, value: [1, 3], status: "good" },
-      { operator: 3, value: [4], status: "bad" },
+      { operator: 0, value: [1, 3], status: "good" },
+      { operator: 2, value: [4], status: "bad" },
     ],
   },
 ];
 
 export default function App() {
   // return <ConfigBox />;
-  return <ScoringTable formDatas={formData} />;
+  return <FormTable formDatas={formData} />;
 }

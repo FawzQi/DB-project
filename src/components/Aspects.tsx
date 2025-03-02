@@ -67,9 +67,8 @@ export default function Aspect({ aspect }: AspectProps) {
         </button>
       </div>
       {aspectList.map((aspect, index) => (
-        <>
-          <div className="py-1"> </div>
-          <div key={index} className="mb-4">
+        <div key={`${aspect.name}-${index}`} className="py-1">
+          <div className="mb-4">
             <div className="d-flex align-items-center gap-2">
               {editingIndex === index ? (
                 <input
@@ -106,11 +105,11 @@ export default function Aspect({ aspect }: AspectProps) {
                 </>
               )}
             </div>
-
-            <SubAspect subaspects={aspect.subaspects} />
-            {/* <div className="mb-4 pb-3 border-bottom"></div> */}
           </div>
-        </>
+
+          <SubAspect subaspects={aspect.subaspects} />
+          {/* <div className="mb-4 pb-3 border-bottom"></div> */}
+        </div>
       ))}
     </>
   );

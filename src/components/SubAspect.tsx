@@ -41,7 +41,7 @@ export default function SubAspect({ subaspects }: SubAspectProps) {
       <h4>Sub-Aspek :</h4>
       <div className="col g-2">
         {subaspectList.map((subaspect) => (
-          <div key={subaspect.value} className="row align-items-center g-2">
+          <div key={subaspect.name} className="row align-items-center g-2">
             <div className="col">
               <div className="p-2    border rounded bg-light">
                 {subaspect.name}
