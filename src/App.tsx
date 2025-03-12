@@ -124,28 +124,29 @@ export default function App() {
 
   return (
     <>
-      {configState && (
-        <ConfigBox
-          formData={formData[configIndex]}
-          index={configIndex}
-          updateFormData={updateFormData}
-        />
-      )}
-
       {formData.map((data, index) => (
         <React.Fragment key={`${data.name}-${index}`}>
-          <button
-            onClick={() => {
-              setConfigState(!configState);
-              setConfigIndex(index);
-            }}
-          >
-            config
-          </button>
-          <FormTable formData={data} />
+          {configIndex === index && configState ? (
+            <ConfigBox
+              formData={formData[configIndex]}
+              index={configIndex}
+              updateFormData={updateFormData}
+            />
+          ) : (
+            <div className="container-lg">
+              <button
+                onClick={() => {
+                  setConfigState(true);
+                  setConfigIndex(index);
+                }}
+              >
+                config
+              </button>
+              <FormTable formData={data} />
+            </div>
+          )}
         </React.Fragment>
       ))}
-      {/* <FormTable formDatas={formData} /> */}
     </>
   );
 }

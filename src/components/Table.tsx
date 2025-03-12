@@ -51,13 +51,6 @@ export default function FormTable({ formData }: FormDataProps) {
     return index;
   };
 
-  // const FormDataAspectIndexWithMostSubaspect: number[] = [];
-  // formData.map((formData) => {
-  //   FormDataAspectIndexWithMostSubaspect.push(
-  //     getAspectIndexWithMaxSubaspect(formData.aspect)
-  //   );
-  // });
-
   const getMaxSubaspect = (aspects: Aspect[]) => {
     let max = 0;
     aspects.forEach((aspect) => {
@@ -68,18 +61,20 @@ export default function FormTable({ formData }: FormDataProps) {
     return max;
   };
 
-  // const FormDataMaxSubAspect: number[] = [];
-  // formDatas.map((formData) => {
-  //   FormDataMaxSubAspect.push(getMaxSubaspect(formData.aspect));
-  //   console.log(getMaxSubaspect(formData.aspect));
-  // });
+  const getTotalKesalahan = () => {
+    let total = 0;
+    formData.aspect.forEach((aspect) => {
+      aspect.subaspects.forEach((subaspect) => {
+        total += subaspect.value;
+      });
+    });
+    return total;
+  };
 
   const operatorSign = ["-", ">", "<", ">=", "<="];
 
   return (
     <>
-      {/* {formDatas.map((formData, formIndex) => ( */}
-      {/* <div key={`${formData.name}-${formIndex}`}> */}
       <table className="table table-bordered text-center">
         <thead>
           <tr>
@@ -183,13 +178,18 @@ export default function FormTable({ formData }: FormDataProps) {
           </tr>
           <tr style={{ textAlign: "left" }}>
             <th colSpan={2}>Bobot Chapter</th>
-            <th colSpan={formData.aspect.length - 1}>Total Kesalahan :</th>
+            <th colSpan={formData.aspect.length - 1}>
+              Total Kesalahan : {getTotalKesalahan()}
+            </th>
             <th className="table-success"></th>
             <th colSpan={formData.aspect.length}>Predikat</th>
           </tr>
           <tr style={{ textAlign: "left" }}>
             <th colSpan={2}>Nilai Bobot Chapter</th>
-            <th colSpan={formData.aspect.length - 1}>Total Nilai :</th>
+            <th colSpan={formData.aspect.length - 1}>
+              Total Nilai : 90-{getTotalKesalahan()} :{" "}
+              {90 - getTotalKesalahan()}
+            </th>
             <th className="table-success"></th>
             <th colSpan={formData.aspect.length}>Status</th>
           </tr>
@@ -216,7 +216,7 @@ export default function FormTable({ formData }: FormDataProps) {
                 <>
                   <td
                     colSpan={formData.aspect.length * 2 - 1}
-                    rowSpan={formData.aspect.length}
+                    rowSpan={formData.scores.length}
                   >
                     catatan penguji:
                   </td>
@@ -228,8 +228,6 @@ export default function FormTable({ formData }: FormDataProps) {
         </tbody>
       </table>
       <div className="py-3"> </div>
-      {/* </div> */}
-      {/* ))} */}
     </>
   );
 }
