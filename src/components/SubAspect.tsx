@@ -36,10 +36,13 @@ export default function SubAspect({
   };
 
   // Handle Delete Subaspect
-  const handleDeleteSubaspect = (value: number) => {
-    const updatedSubaspects = subaspectList.filter(
-      (subaspect) => subaspect.value !== value
-    );
+  const handleDeleteSubaspect = (value: string) => {
+    const updatedSubaspects: Subaspect[] = [];
+    subaspectList.forEach((subaspect) => {
+      if (subaspect.name !== value) {
+        updatedSubaspects.push(subaspect);
+      }
+    });
     setSubaspectList(updatedSubaspects);
     onUpdateSubaspects(updatedSubaspects);
   };
@@ -58,7 +61,7 @@ export default function SubAspect({
             <div className="col-auto">
               <button
                 className="btn btn-danger "
-                onClick={() => handleDeleteSubaspect(subaspect.value)}
+                onClick={() => handleDeleteSubaspect(subaspect.name)}
               >
                 Hapus
               </button>
