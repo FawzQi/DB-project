@@ -30,8 +30,13 @@ interface Score {
 
 interface FormData {
   name: string;
+  doc_version: string;
+  no_chapter: number;
+  chapter_name: string;
+  chapter_weight: number;
   aspect: Aspect[];
   scores: Score[];
+  catatan: string;
 }
 
 interface FormDataProps {
@@ -88,12 +93,12 @@ export default function FormTable({ formData }: FormDataProps) {
           <tr>
             <th
               colSpan={formData.aspect.length * 2}
-              style={{ textAlign: "left" }}
+              style={{ textAlign: "left", fontWeight: "normal" }}
             >
-              Project Name {formData.name}
+              Project Name: {formData.name}
             </th>
-            <th colSpan={2} style={{ textAlign: "left" }}>
-              Doc
+            <th colSpan={2} style={{ textAlign: "left", fontWeight: "normal" }}>
+              Doc: {formData.doc_version}
             </th>
           </tr>
           <tr>
@@ -128,8 +133,13 @@ export default function FormTable({ formData }: FormDataProps) {
               <tr>
                 {subaspectIndex == 0 && (
                   <>
-                    <td rowSpan={getMaxSubaspect(formData.aspect) + 2}> a</td>
-                    <td rowSpan={getMaxSubaspect(formData.aspect) + 2}>a </td>
+                    <td rowSpan={getMaxSubaspect(formData.aspect) + 2}>
+                      {" "}
+                      {formData.no_chapter}{" "}
+                    </td>
+                    <td rowSpan={getMaxSubaspect(formData.aspect) + 2}>
+                      {formData.chapter_name}{" "}
+                    </td>
                   </>
                 )}
                 {formData.aspect.map((aspect, index) => (
@@ -177,7 +187,7 @@ export default function FormTable({ formData }: FormDataProps) {
             ></th>
           </tr>
           <tr style={{ textAlign: "left" }}>
-            <th colSpan={2}>Bobot Chapter</th>
+            <th colSpan={2}>Bobot Chapter: {formData.chapter_weight}</th>
             <th colSpan={formData.aspect.length - 1}>
               Total Kesalahan : {getTotalKesalahan()}
             </th>
@@ -185,7 +195,10 @@ export default function FormTable({ formData }: FormDataProps) {
             <th colSpan={formData.aspect.length}>Predikat</th>
           </tr>
           <tr style={{ textAlign: "left" }}>
-            <th colSpan={2}>Nilai Bobot Chapter</th>
+            <th colSpan={2}>
+              Nilai Bobot Chapter:{" "}
+              {formData.chapter_weight * (90 - getTotalKesalahan())}
+            </th>
             <th colSpan={formData.aspect.length - 1}>
               Total Nilai : 90-{getTotalKesalahan()} :{" "}
               {90 - getTotalKesalahan()}
@@ -211,14 +224,15 @@ export default function FormTable({ formData }: FormDataProps) {
               ) : (
                 <td> {`${operatorSign[score.operator]} ${score.lower}`} </td>
               )}
-              <td>{score.status}</td>
+              <td align="left">: {score.status}</td>
               {scoreIndex === 0 && (
                 <>
                   <td
                     colSpan={formData.aspect.length * 2 - 1}
                     rowSpan={formData.scores.length}
+                    align="left"
                   >
-                    catatan penguji:
+                    <strong>catatan penguji:</strong> {formData.catatan}
                   </td>
                   <td rowSpan={formData.scores.length}>tanda tangan penguji</td>
                 </>

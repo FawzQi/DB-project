@@ -24,6 +24,10 @@ const data = [
 const myData = [
   {
     name: "Project 1",
+    doc_version: "1.0",
+    no_chapter: 1,
+    chapter_name: "Introduction",
+    chapter_weight: 0.5,
     aspect: [
       {
         name: "Fruit",
@@ -44,9 +48,14 @@ const myData = [
       { operator: 0, upper: 100, lower: 3, status: "good" },
       { operator: 3, upper: 0, lower: 0, status: "bad" },
     ],
+    catatan: "Project 1 notes",
   },
   {
     name: "Project 2",
+    doc_version: "1.1",
+    no_chapter: 2,
+    chapter_name: "Details",
+    chapter_weight: 0.5,
     aspect: [
       {
         name: "Fruit",
@@ -70,6 +79,7 @@ const myData = [
       { operator: 0, upper: 10, lower: 3, status: "good" },
       { operator: 2, upper: 0, lower: 0, status: "bad" },
     ],
+    catatan: "Project 2 notes",
   },
 ];
 
@@ -100,8 +110,13 @@ interface Score {
 
 interface FormData {
   name: string;
+  doc_version: string;
+  no_chapter: number;
+  chapter_name: string;
+  chapter_weight: number;
   aspect: Aspect[];
   scores: Score[];
+  catatan: string;
 }
 
 interface FormDataProps {

@@ -17,6 +17,7 @@ export default function SubAspect({
   // State untuk menyimpan daftar subkategori
   const [subaspectList, setSubaspectList] = useState<Subaspect[]>(subaspects);
   const [newSubaspect, setNewSubaspect] = useState<string>("");
+  const [newSubaspectValue, setNewSubaspectValue] = useState<number>(0);
 
   // Sinkronisasi state dengan props jika berubah
   useEffect(() => {
@@ -28,10 +29,11 @@ export default function SubAspect({
     if (newSubaspect.trim() === "") return; // Cegah input kosong
     const newSubaspectObj = {
       name: newSubaspect,
-      value: 0, // Generate random value
+      value: newSubaspectValue, // Generate random value
     };
     setSubaspectList([...subaspectList, newSubaspectObj]);
     setNewSubaspect("");
+    setNewSubaspectValue(0); // Reset input value
     onUpdateSubaspects([...subaspectList, newSubaspectObj]);
   };
 
@@ -47,20 +49,52 @@ export default function SubAspect({
     onUpdateSubaspects(updatedSubaspects);
   };
 
+  // Handle Update Subaspect Value
+  const handleUpdateSubaspectValue = (index: number, value: number) => {
+    const updatedSubaspects = [...subaspectList];
+    updatedSubaspects[index].value = value;
+    setSubaspectList(updatedSubaspects);
+    onUpdateSubaspects(updatedSubaspects);
+  };
+
   return (
     <>
       <h4>Sub-Aspek :</h4>
       <div className="col g-2">
         {subaspectList.map((subaspect) => (
           <div key={subaspect.name} className="row align-items-center g-2">
-            <div className="col">
-              <div className="p-2    border rounded bg-light">
+            <div className="col-6">
+              <div className="p-2 border rounded bg-light">
                 {subaspect.name}
               </div>
             </div>
-            <div className="col-auto">
+            <div className="col-2">Total kesalahan:</div>
+            <div className="col-2">
+              <input
+                type="number"
+                min={0}
+                className="form-control w-10"
+                placeholder="Jumlah kesalahan"
+                value={subaspect.value}
+                onChange={(e) =>
+                  handleUpdateSubaspectValue(
+                    subaspectList.indexOf(subaspect),
+                    parseInt(e.target.value)
+                  )
+                }
+                onBlur={(e) => {
+                  if (e.target.value === "") {
+                    handleUpdateSubaspectValue(
+                      subaspectList.indexOf(subaspect),
+                      0
+                    );
+                  }
+                }}
+              />
+            </div>
+            <div className="col-2">
               <button
-                className="btn btn-danger "
+                className="btn btn-danger w-100"
                 onClick={() => handleDeleteSubaspect(subaspect.name)}
               >
                 Hapus
@@ -79,6 +113,7 @@ export default function SubAspect({
           value={newSubaspect}
           onChange={(e) => setNewSubaspect(e.target.value)}
         />
+
         <button
           type="button"
           className="btn btn-primary"

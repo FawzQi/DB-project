@@ -134,8 +134,14 @@ export default function Scoring({ scores, onUpdateScores }: ScoreProps) {
                             id="SelectRangeAtas"
                             value={newUpper}
                             onChange={(e) =>
-                              setNewUpper(Number(e.target.value))
+                              setNewUpper(parseInt(e.target.value))
                             }
+                            onBlur={(e) => {
+                              if (e.target.value === "") {
+                                setNewUpper(0);
+                              }
+                            }}
+                            min={0}
                           />
                           <label htmlFor="SelectRangeBawah">Batas Bawah </label>{" "}
                           <input
@@ -145,8 +151,14 @@ export default function Scoring({ scores, onUpdateScores }: ScoreProps) {
                             id="SelectRangeBawah"
                             value={newLower}
                             onChange={(e) =>
-                              setNewLower(Number(e.target.value))
+                              setNewLower(parseInt(e.target.value))
                             }
+                            onBlur={(e) => {
+                              if (e.target.value === "") {
+                                setNewLower(0);
+                              }
+                            }}
+                            min={0}
                           />
                         </>
                       ) : (
