@@ -56,11 +56,12 @@ export default function Aspect({ aspect, onUpdateAspect }: AspectProps) {
 
   return (
     <>
+      <h5 style={{ textAlign: "left" }}>Nama Parameter Baru</h5>
       <div className="mb-3 d-flex gap-2">
         <input
           type="text"
           className="form-control"
-          placeholder="Tambah Aspek baru"
+          placeholder="Tambah Parameter baru"
           value={newAspect}
           onChange={(e) => setNewAspect(e.target.value)}
         />
@@ -80,7 +81,7 @@ export default function Aspect({ aspect, onUpdateAspect }: AspectProps) {
                   onChange={(e) => setEditText(e.target.value)}
                 />
               ) : (
-                <h4 className="mb-0">Aspek: {aspect.name}</h4>
+                <h4 className="mb-0">Parameter : {aspect.name}</h4>
               )}
 
               {editingIndex === index ? (

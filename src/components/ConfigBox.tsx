@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Aspect from "./Aspects";
+import Chapter from "./Chapter";
 import Scoring from "./Scoring";
 
 interface Subaspect {
@@ -12,16 +12,15 @@ interface Aspect {
   subaspects: Subaspect[];
 }
 
-enum Operator {
-  IN_RANGE = 0,
-  GREATER_THAN,
-  LESS_THAN,
-  GREATER_THAN_OR_EQUAL,
-  LESS_THAN_OR_EQUAL,
+interface Chapter {
+  no_chapter: number;
+  chapter_name: string;
+  chapter_weight: number;
+  aspects: Aspect[];
 }
 
 interface Score {
-  operator: Operator;
+  operator: number;
   upper: number;
   lower: number;
   status: string;
@@ -29,13 +28,14 @@ interface Score {
 
 interface FormData {
   name: string;
-  doc_version: string;
-  no_chapter: number;
-  chapter_name: string;
-  chapter_weight: number;
-  aspect: Aspect[];
+
+  chapters: Chapter[];
   scores: Score[];
   catatan: string;
+}
+
+interface FormTableProps {
+  formData: FormData;
 }
 
 interface FormDataProps {
@@ -54,16 +54,16 @@ export default function ConfigBox({
   return (
     <div className="App">
       <header className="App-header">
-        <div className="container mt-4">
+        <div className="container mt-2">
           <div className="row justify-content-center">
-            <div className="col-md-8">
+            <div className="col-md-30">
               <div className="card shadow-lg p-3">
                 <div className="card-body">
                   <h3 className="card-title text-center">Config Form</h3>
                   <div className="py-3"> </div>
                   {/* Form Input untuk Nama, Versi, No Bab, Nama Bab, dan Bobot Bab */}
                   <div className="mb-3">
-                    <label className="form-label">Nama</label>
+                    <h5 style={{ textAlign: "left" }}>Nama Project</h5>
                     <input
                       type="text"
                       className="form-control"
@@ -76,8 +76,8 @@ export default function ConfigBox({
                       }
                     />
                   </div>
-                  <div className="mb-3">
-                    <label className="form-label">Versi Dokumen</label>
+                  {/* <div className="mb-3">
+                    <h5 style={{ textAlign: "left" }}>Versi Dokumen</h5>
                     <input
                       type="text"
                       className="form-control"
@@ -89,73 +89,17 @@ export default function ConfigBox({
                         })
                       }
                     />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">No Bab</label>
-                    <input
-                      type="number"
-                      className="form-control"
-                      value={localFormData.no_chapter}
-                      onChange={(e) =>
-                        setLocalFormData({
-                          ...localFormData,
-                          no_chapter: parseInt(e.target.value),
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Nama Bab</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={localFormData.chapter_name}
-                      onChange={(e) =>
-                        setLocalFormData({
-                          ...localFormData,
-                          chapter_name: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Bobot Bab</label>
-                    <input
-                      type="number"
-                      className="form-control"
-                      value={localFormData.chapter_weight}
-                      onChange={(e) =>
-                        setLocalFormData({
-                          ...localFormData,
-                          chapter_weight: parseInt(e.target.value),
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Catatan</label>
-                    <textarea
-                      className="form-control"
-                      rows={3}
-                      value={localFormData.catatan}
-                      onChange={(e) =>
-                        setLocalFormData({
-                          ...localFormData,
-                          catatan: e.target.value,
-                        })
-                      }
-                    ></textarea>
-                  </div>
-
-                  {/* Kirim fungsi update ke Aspect */}
-                  <Aspect
-                    aspect={localFormData.aspect}
-                    onUpdateAspect={(newAspects) =>
-                      setLocalFormData({ ...localFormData, aspect: newAspects })
+                  </div> */}
+                  <Chapter
+                    chapter={localFormData.chapters}
+                    onUpdateChapter={(newChapters) =>
+                      setLocalFormData({
+                        ...localFormData,
+                        chapters: newChapters,
+                      })
                     }
                   />
-
-                  <div className="mb-4 pb-3 border-bottom"></div>
+                  <hr className="my-4" />
 
                   {/* Kirim fungsi update ke Scoring */}
                   <Scoring
@@ -164,14 +108,29 @@ export default function ConfigBox({
                       setLocalFormData({ ...localFormData, scores: newScores })
                     }
                   />
-
                   {/* Tombol Simpan Perubahan */}
-                  <button
-                    className="btn btn-primary mt-3"
-                    onClick={() => updateFormData(localFormData, index)}
-                  >
-                    Simpan Perubahan
-                  </button>
+                  {/* Form Input untuk Catatan */}
+                  <div className="mb-3 mt-3">
+                    <h5 className="form-label  " style={{ textAlign: "left" }}>
+                      Catatan
+                    </h5>
+                    <textarea
+                      className="form-control"
+                      value={localFormData.catatan}
+                      onChange={(e) =>
+                        setLocalFormData({
+                          ...localFormData,
+                          catatan: e.target.value,
+                        })
+                      }
+                    ></textarea>
+                    <button
+                      className="btn btn-primary mt-3"
+                      onClick={() => updateFormData(localFormData, index)}
+                    >
+                      Simpan Perubahan
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

@@ -59,7 +59,7 @@ export default function SubAspect({
 
   return (
     <>
-      <h4>Sub-Aspek :</h4>
+      <h4 style={{ textAlign: "left" }}>Sub-Aspek :</h4>
       <div className="col g-2">
         {subaspectList.map((subaspect) => (
           <div key={subaspect.name} className="row align-items-center g-2">
