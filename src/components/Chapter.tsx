@@ -2,16 +2,20 @@ import Aspect from "./Aspects";
 import { useState } from "react";
 
 interface Subaspect {
+  id: number,
   name: string;
   value: number;
 }
 
 interface Aspect {
-  name: string;
-  subaspects: Subaspect[];
+  id: number,
+  name: string,
+  totalMistakes: number,
+  subaspects: Subaspect[]
 }
 
 interface Chapter {
+  id: number,
   no_chapter: number;
   chapter_name: string;
   chapter_weight: number;
@@ -55,15 +59,21 @@ export default function Chapter({ chapter, onUpdateChapter }: ChapterProps) {
   // Tambah chapter baru
   const handleAddChapter = () => {
     if (newChapter.trim() === "") return; // Cegah penambahan chapter kosong
-    const newChapterObj: Chapter = {
-      no_chapter: chapterList.length + 1,
+    /*const newChapterObj: Chapter = {
+      no_chapter: chapter.length +1,
       chapter_name: newChapter,
       chapter_weight: 0,
       aspects: [],
     };
-    const updatedChapters = [...chapterList, newChapterObj];
-    setChapterList(updatedChapters);
-    onUpdateChapter(updatedChapters); // Panggil update di sini
+    //const updatedChapters = [...chapterList, newChapterObj];
+    fetch("http://192.168.86.90:3000/api/projects", {
+      mode: "cors",
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({"name": newChapter, ""})
+    }).then()*/
+    //setChapterList(updatedChapters);
+    //onUpdateChapter(updatedChapters); // Panggil update di sini
     setNewChapter(""); // Reset input
   };
 

@@ -1,16 +1,20 @@
 import React from "react";
 
 interface Subaspect {
+  id: number,
   name: string;
   value: number;
 }
 
 interface Aspect {
-  name: string;
-  subaspects: Subaspect[];
+  id: number,
+  name: string,
+  totalMistakes: number,
+  subaspects: Subaspect[]
 }
 
 interface Chapter {
+  id: number,
   no_chapter: number;
   chapter_name: string;
   chapter_weight: number;
@@ -25,11 +29,17 @@ interface Score {
 }
 
 interface FormData {
+  id: number,
   name: string;
-
-  chapters: Chapter[];
-  scores: Score[];
-  catatan: string;
+  gradingDate: Date,
+  chapters: Chapter[],
+  totalChapterWeight: number,
+  finalScore: number,
+  totalMistakes: number,
+  grade: string,
+  scores: Score[],
+  catatan: string,
+  status: string
 }
 
 interface FormTableProps {
@@ -89,7 +99,7 @@ export default function FormTable({ formData }: FormTableProps) {
           </th> */}
         </tr>
         <tr>
-          <th rowSpan={2}>No</th>
+          <th rowSpan={2}>ID</th>
           <th rowSpan={2}>Chapter</th>
           <th colSpan={4} className="table-success">
             Parameter Penilaian
@@ -104,10 +114,10 @@ export default function FormTable({ formData }: FormTableProps) {
       </thead>
       <tbody>
         {formData.chapters.map((chapter) => (
-          <React.Fragment key={`chapter-${chapter.no_chapter}`}>
+          <React.Fragment key={`chapter-${chapter.id}`}>
             <tr style={{ borderWidth: "2px", borderStyle: "solid" }}>
               <td rowSpan={countChapterRowLength(chapter)}>
-                {chapter.no_chapter}
+                {chapter.id}
               </td>
               <td rowSpan={countChapterRowLength(chapter) - 1}>
                 {chapter.chapter_name}
@@ -150,17 +160,17 @@ export default function FormTable({ formData }: FormTableProps) {
         </tr>
         <tr>
           <td colSpan={2}>
-            Total Bobot Chapter : {calculateTotalChapterWeight(formData)}
+            Total Bobot Chapter : {formData.totalChapterWeight}
           </td>
-          <td>Total Kesalahan : {calculateTotalErrors(formData)}</td>
+          <td>Total Kesalahan : {formData.totalMistakes}</td>
           <td className="table-success"></td>
-          <td colSpan={2}>Predikat</td>
+          <td colSpan={2}>Predikat: {formData.grade}</td>
         </tr>
         <tr>
           <td colSpan={2}>Nilai Bobot Chapter</td>
-          <td>Total Nilai : {90 - calculateTotalErrors(formData)}</td>
+          <td>Total Nilai : {formData.finalScore}</td>
           <td className="table-success"></td>
-          <td colSpan={2}>Status</td>
+          <td colSpan={2}>Status: {formData.status}</td>
         </tr>
         <tr>
           <td colSpan={6} className="table-success"></td>

@@ -1,6 +1,6 @@
 import ConfigBox from "./components/ConfigBox";
 import FormTable from "./components/Table";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import React from "react";
 
 const myData = [
@@ -210,16 +210,20 @@ enum Operator {
   LESS_THAN_OR_EQUAL,
 }
 interface Subaspect {
+  id: number,
   name: string;
   value: number;
 }
 
 interface Aspect {
-  name: string;
-  subaspects: Subaspect[];
+  id: number,
+  name: string,
+  totalMistakes: number,
+  subaspects: Subaspect[]
 }
 
 interface Chapter {
+  id: number,
   no_chapter: number;
   chapter_name: string;
   chapter_weight: number;
@@ -234,11 +238,17 @@ interface Score {
 }
 
 interface FormData {
+  id: number,
   name: string;
-
-  chapters: Chapter[];
-  scores: Score[];
-  catatan: string;
+  gradingDate: Date,
+  chapters: Chapter[],
+  totalChapterWeight: number,
+  finalScore: number,
+  totalMistakes: number,
+  grade: string,
+  scores: Score[],
+  catatan: string,
+  status: string
 }
 
 interface FormTableProps {
@@ -248,15 +258,29 @@ interface FormTableProps {
 export default function App() {
   const [configState, setConfigState] = useState<boolean>(false);
   const [configIndex, setConfigIndex] = useState<number>(0);
-  const [formData, setFormData] = useState(myData);
-  const initialIndexHideTable = Array(myData.length).fill(false);
+  const [formData, setFormData] = useState([]);
+
+  useEffect(() => {fetch("http://192.168.86.90:3000/api/tableShow", {
+    mode: "cors",
+    method: "GET"})
+  .then((res)=>res.json())
+  .then((data)=>{console.log(data); setFormData(data);})}, )
+
+  
+
+  const initialIndexHideTable = Array(formData.length).fill(false);
   const [indexHideTable, setIndexHideTable] = useState<boolean[]>(
     initialIndexHideTable
   );
   const updateFormData = (newData: FormData, index: number) => {
-    const newFormData = [...formData];
-    newFormData[index] = newData;
-    setFormData(newFormData);
+    const updatedFormDataID = formData[index].id;
+    fetch("http://192.168.86.90:3000/api/projects?"+new URLSearchParams({project_id: updatedFormDataID}), {
+      mode: "cors",
+      method: "PATCH",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({"name": newData.name, "comment": newData.catatan})
+    }).then()
+    
     setConfigIndex(0);
     setConfigState(false);
   };
@@ -271,19 +295,34 @@ export default function App() {
   const [newProjectName, setNewProjectName] = useState<string>();
 
   const handleAddProject = () => {
+    /*
     const newProject: FormData = {
       name: newProjectName || "New Project",
 
       chapters: [],
       scores: [],
       catatan: "",
-    };
-    setFormData([...formData, newProject]);
+    };*/
+    
+    const name = newProjectName || "New Project";
+    fetch("http://192.168.86.90:3000/api/projects", {
+      mode: "cors",
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({"name": name})
+    }).then()
+    
   };
   const handleDeleteProject = (index: number) => {
-    const updatedFormData = formData.filter((_, i) => i !== index);
     const updatedIndexHideTable = indexHideTable.filter((_, i) => i !== index);
-    setFormData(updatedFormData);
+    const deletedFormDataID = formData[index].id;
+    console.log(deletedFormDataID);
+
+    fetch("http://192.168.86.90:3000/api/projects?"+new URLSearchParams({project_id: deletedFormDataID}).toString(), {
+      mode: "cors",
+      method: "DELETE",
+      headers: {"Content-Type": "application/json"}
+    }).then()
     setIndexHideTable(updatedIndexHideTable);
   };
 
@@ -329,6 +368,8 @@ export default function App() {
                   <div className="card text-center">
                     <div className="card-header d-flex justify-content-between">
                       <span>{data.name}</span>
+                      <span>Tanggal Penilaian: {data.gradingDate}</span>
+                      <span>ID: {data.id}</span>
                       <ul className="nav nav-pills card-header-pills">
                         <li className="nav-item me-2">
                           <a
