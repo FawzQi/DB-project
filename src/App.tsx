@@ -60,7 +60,7 @@ export default function App() {
       mode: "cors",
       method: "GET"}).then().
       then((tableData)=>tableData.json())
-      .then((data)=>{console.log(data);setFormData(data)});
+      .then((data)=>{setFormData(data)});
     }, 1000);
     return () => clearInterval(interval);
   }, [])
