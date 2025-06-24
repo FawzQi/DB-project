@@ -154,7 +154,6 @@ export default function App() {
                     <div className="card-header d-flex justify-content-between">
                       <span>{data.name}</span>
                       <span>Tanggal Penilaian: {data.gradingDate}</span>
-                      <span>ID: {data.id}</span>
                       <ul className="nav nav-pills card-header-pills">
                         <li className="nav-item me-2">
                           <a
