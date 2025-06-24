@@ -2,21 +2,27 @@ import SubAspect from "./SubAspect";
 import { useState } from "react";
 
 interface Subaspect {
+  id: number,
   name: string;
   value: number;
 }
 
 interface Aspect {
-  name: string;
-  subaspects: Subaspect[];
+  id: number,
+  name: string,
+  totalMistakes: number,
+  subaspects: Subaspect[]
 }
 
 interface AspectProps {
+  chapter_id: number,
   aspect: Aspect[];
   onUpdateAspect: (newAspects: Aspect[]) => void;
 }
 
-export default function Aspect({ aspect, onUpdateAspect }: AspectProps) {
+const API_BASE_URI: string = import.meta.env.VITE_API_BASE_URI as string
+
+export default function AspectF({chapter_id, aspect, onUpdateAspect }: AspectProps) {
   const [aspectList, setAspectList] = useState<Aspect[]>(aspect);
   const [newAspect, setNewAspect] = useState<string>("");
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -33,6 +39,13 @@ export default function Aspect({ aspect, onUpdateAspect }: AspectProps) {
     const updatedAspects = aspectList.map((aspect, i) =>
       i === index ? { ...aspect, name: editText } : aspect
     );
+    const updatedAspectID = aspect[index].id as unknown
+    fetch(`${API_BASE_URI}/api/grading_parameters?`+new URLSearchParams({parameter_id: updatedAspectID as string}), {
+      mode: "cors",
+      method: "PATCH",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({"name": editText})
+    }).then()
     setAspectList(updatedAspects);
     setEditingIndex(null); // Keluar dari mode edit
     onUpdateAspect(updatedAspects); // Panggil update di sini
@@ -41,6 +54,12 @@ export default function Aspect({ aspect, onUpdateAspect }: AspectProps) {
   // Hapus aspek
   const handleDeleteAspect = (index: number) => {
     const updatedAspects = aspectList.filter((_, i) => i !== index);
+    const deletedAspectID = aspect[index].id as unknown
+    fetch(`${API_BASE_URI}/api/grading_parameters?`+new URLSearchParams({parameter_id: deletedAspectID as string}), {
+      mode: "cors",
+      method: "DELETE",
+      headers: {"Content-Type": "application/json"},
+    }).then()
     setAspectList(updatedAspects);
     onUpdateAspect(updatedAspects); // Panggil update di sini
   };
@@ -48,7 +67,13 @@ export default function Aspect({ aspect, onUpdateAspect }: AspectProps) {
   // Tambah aspek baru
   const handleAddAspect = () => {
     if (newAspect.trim() === "") return;
-    const updatedAspects = [...aspectList, { name: newAspect, subaspects: [] }];
+    const updatedAspects = [...aspectList, {id: 0, name: newAspect, subaspects: [], totalMistakes: 0 }];
+    fetch(`${API_BASE_URI}/api/grading_parameters`, {
+      mode: "cors",
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({"chapterID": chapter_id,"name": newAspect})
+    }).then()
     setAspectList(updatedAspects);
     setNewAspect("");
     onUpdateAspect(updatedAspects); // Panggil update di sini
@@ -111,6 +136,7 @@ export default function Aspect({ aspect, onUpdateAspect }: AspectProps) {
           </div>
 
           <SubAspect
+            parameter_id={aspect.id}
             subaspects={aspectList[index].subaspects}
             onUpdateSubaspects={(newSubaspects) => {
               const updatedAspects = aspectList.map((asp, i) =>
