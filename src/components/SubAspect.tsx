@@ -35,13 +35,13 @@ export default function SubAspect({
     const newSubaspectObj = {
       id: 0,
       name: newSubaspect,
-      value: newSubaspectValue, // Generate random value
+      value: newSubaspectValue,
     };
     fetch(`${API_BASE_URI}/api/sub_aspects`, {
       mode: "cors",
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({"paramID": parameter_id, "name": newSubaspect})
+      body: JSON.stringify({"paramID": parameter_id, "name": newSubaspect, "mistakes": newSubaspectValue})
     }).then()
     setSubaspectList([...subaspectList, newSubaspectObj]);
     setNewSubaspect("");
@@ -125,7 +125,8 @@ export default function SubAspect({
       </div>
 
       {/* Input Subkategori */}
-      <div className="mb-3 d-flex gap-2">
+      <div className="mb-3 d-flex gap-2 col-12">
+        <div className="col-6">
         <input
           type="text"
           className="form-control w-100"
@@ -133,14 +134,35 @@ export default function SubAspect({
           value={newSubaspect}
           onChange={(e) => setNewSubaspect(e.target.value)}
         />
-
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={handleAddSubaspect}
-        >
-          Tambah
-        </button>
+        </div>
+        <div className="col-2">Total kesalahan:</div>
+        <div className="col-2">
+          <input
+              type="number"
+              min={0}
+              className="form-control w-10"
+              placeholder="Jumlah kesalahan"
+              value={newSubaspectValue}
+              onChange={(e) =>
+                setNewSubaspectValue(parseInt(e.target.value))
+              }
+              onBlur={(e) => {
+                if (e.target.value === "") {
+                  setNewSubaspectValue(parseInt(e.target.value))
+                }
+              }}
+            />
+        </div>
+        <div className="col-2">
+          <button
+            type="button"
+            className="btn btn-primary w-100"
+            onClick={handleAddSubaspect}
+          >
+            Tambah
+          </button>
+        </div>
+        
       </div>
     </>
   );
