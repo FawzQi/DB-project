@@ -1,225 +1,23 @@
 import ConfigBox from "./components/ConfigBox";
 import FormTable from "./components/Table";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import React from "react";
 
-const myData = [
-  {
-    name: "Employee Performance Review",
-
-    chapters: [
-      {
-        no_chapter: 1,
-        chapter_name: "Introduction",
-        chapter_weight: 5,
-        aspects: [
-          {
-            name: "Overview",
-            subaspects: [
-              { name: "Purpose", value: 10 },
-              { name: "Scope", value: 8 },
-            ],
-          },
-        ],
-      },
-      {
-        no_chapter: 2,
-        chapter_name: "Performance Metrics",
-        chapter_weight: 40,
-        aspects: [
-          {
-            name: "Quality of Work",
-            subaspects: [
-              { name: "Accuracy", value: 15 },
-              { name: "Consistency", value: 10 },
-            ],
-          },
-          {
-            name: "Efficiency",
-            subaspects: [
-              { name: "Time Management", value: 10 },
-              { name: "Resource Utilization", value: 5 },
-            ],
-          },
-        ],
-      },
-      {
-        no_chapter: 3,
-        chapter_name: "Behavioral Assessment",
-        chapter_weight: 30,
-        aspects: [
-          {
-            name: "Teamwork",
-            subaspects: [
-              { name: "Collaboration", value: 12 },
-              { name: "Conflict Resolution", value: 8 },
-            ],
-          },
-          {
-            name: "Communication",
-            subaspects: [
-              { name: "Clarity", value: 10 },
-              { name: "Responsiveness", value: 10 },
-            ],
-          },
-        ],
-      },
-      {
-        no_chapter: 4,
-        chapter_name: "Final Evaluation",
-        chapter_weight: 25,
-        aspects: [
-          {
-            name: "Overall Performance",
-            subaspects: [
-              { name: "Achievement of Goals", value: 20 },
-              { name: "Adaptability", value: 5 },
-            ],
-          },
-        ],
-      },
-    ],
-    scores: [
-      {
-        operator: 0,
-        upper: 90,
-        lower: 70,
-        status: "Satisfactory",
-      },
-      {
-        operator: 1,
-        upper: 100,
-        lower: 91,
-        status: "Excellent",
-      },
-      {
-        operator: 2,
-        upper: 69,
-        lower: 50,
-        status: "Needs Improvement",
-      },
-    ],
-    catatan:
-      "Employee has shown consistent improvement over the review period.",
-  },
-  {
-    name: "Employee Performance Review",
-
-    chapters: [
-      {
-        no_chapter: 1,
-        chapter_name: "Introduction",
-        chapter_weight: 5,
-        aspects: [
-          {
-            name: "Overview",
-            subaspects: [
-              { name: "Purpose", value: 10 },
-              { name: "Scope", value: 8 },
-            ],
-          },
-        ],
-      },
-      {
-        no_chapter: 2,
-        chapter_name: "Performance Metrics",
-        chapter_weight: 40,
-        aspects: [
-          {
-            name: "Quality of Work",
-            subaspects: [
-              { name: "Accuracy", value: 15 },
-              { name: "Consistency", value: 10 },
-            ],
-          },
-          {
-            name: "Efficiency",
-            subaspects: [
-              { name: "Time Management", value: 10 },
-              { name: "Resource Utilization", value: 5 },
-            ],
-          },
-        ],
-      },
-      {
-        no_chapter: 3,
-        chapter_name: "Behavioral Assessment",
-        chapter_weight: 30,
-        aspects: [
-          {
-            name: "Teamwork",
-            subaspects: [
-              { name: "Collaboration", value: 12 },
-              { name: "Conflict Resolution", value: 8 },
-            ],
-          },
-          {
-            name: "Communication",
-            subaspects: [
-              { name: "Clarity", value: 10 },
-              { name: "Responsiveness", value: 10 },
-            ],
-          },
-        ],
-      },
-      {
-        no_chapter: 4,
-        chapter_name: "Final Evaluation",
-        chapter_weight: 25,
-        aspects: [
-          {
-            name: "Overall Performance",
-            subaspects: [
-              { name: "Achievement of Goals", value: 20 },
-              { name: "Adaptability", value: 5 },
-            ],
-          },
-        ],
-      },
-    ],
-    scores: [
-      {
-        operator: 0,
-        upper: 90,
-        lower: 70,
-        status: "Satisfactory",
-      },
-      {
-        operator: 1,
-        upper: 100,
-        lower: 91,
-        status: "Excellent",
-      },
-      {
-        operator: 2,
-        upper: 69,
-        lower: 50,
-        status: "Needs Improvement",
-      },
-    ],
-    catatan:
-      "Employee has shown consistent improvement over the review period.",
-  },
-];
-
-enum Operator {
-  IN_RANGE = 0,
-  GREATER_THAN,
-  LESS_THAN,
-  GREATER_THAN_OR_EQUAL,
-  LESS_THAN_OR_EQUAL,
-}
 interface Subaspect {
+  id: number,
   name: string;
   value: number;
 }
 
 interface Aspect {
-  name: string;
-  subaspects: Subaspect[];
+  id: number,
+  name: string,
+  totalMistakes: number,
+  subaspects: Subaspect[]
 }
 
 interface Chapter {
+  id: number,
   no_chapter: number;
   chapter_name: string;
   chapter_weight: number;
@@ -230,33 +28,53 @@ interface Score {
   operator: number;
   upper: number;
   lower: number;
-  status: string;
+  predicate: string;
 }
 
 interface FormData {
+  id: number,
   name: string;
-
-  chapters: Chapter[];
-  scores: Score[];
-  catatan: string;
+  gradingDate: Date,
+  chapters: Chapter[],
+  totalChapterWeight: number,
+  finalScore: number,
+  totalMistakes: number,
+  grade: string,
+  scores: Score[],
+  catatan: string,
+  status: string
 }
 
-interface FormTableProps {
-  formData: FormData;
-}
+const API_BASE_URI: string = import.meta.env.VITE_API_BASE_URI as string
 
 export default function App() {
   const [configState, setConfigState] = useState<boolean>(false);
   const [configIndex, setConfigIndex] = useState<number>(0);
-  const [formData, setFormData] = useState(myData);
-  const initialIndexHideTable = Array(myData.length).fill(false);
-  const [indexHideTable, setIndexHideTable] = useState<boolean[]>(
-    initialIndexHideTable
-  );
-  const updateFormData = (newData: FormData, index: number) => {
-    const newFormData = [...formData];
-    newFormData[index] = newData;
-    setFormData(newFormData);
+  const [formData, setFormData] = useState<any[]>([]);
+  const [indexHideTable, setIndexHideTable] = useState<boolean[]>(Array(formData.length).fill(false));
+  const [newProjectName, setNewProjectName] = useState<string>();
+
+  useEffect(()=>{
+    const interval = setInterval(() => {
+      fetch(`${API_BASE_URI}/api/tableShow`, {
+      mode: "cors",
+      method: "GET"}).then().
+      then((tableData)=>tableData.json())
+      .then((data)=>{console.log(data);setFormData(data)});
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [])
+  
+  const updateFormData = async (newData: FormData, index: number) => {
+    const updatedFormDataID = formData[index].id;
+    const updatedComment: string = newData.catatan || " "
+    await fetch(`${API_BASE_URI}/api/projects?`+new URLSearchParams({project_id: updatedFormDataID}), {
+      mode: "cors",
+      method: "PATCH",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({"name": newData.name, "comment": updatedComment})
+    })
+
     setConfigIndex(0);
     setConfigState(false);
   };
@@ -268,22 +86,28 @@ export default function App() {
     setConfigState(false);
     setConfigIndex(0);
   };
-  const [newProjectName, setNewProjectName] = useState<string>();
+  
 
   const handleAddProject = () => {
-    const newProject: FormData = {
-      name: newProjectName || "New Project",
-
-      chapters: [],
-      scores: [],
-      catatan: "",
-    };
-    setFormData([...formData, newProject]);
+    const name = newProjectName || "New Project";
+    fetch(`${API_BASE_URI}/api/projects`, {
+      mode: "cors",
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({"name": name})
+    }).then()
+    
   };
   const handleDeleteProject = (index: number) => {
-    const updatedFormData = formData.filter((_, i) => i !== index);
     const updatedIndexHideTable = indexHideTable.filter((_, i) => i !== index);
-    setFormData(updatedFormData);
+    const deletedFormDataID = formData[index].id;
+    console.log(deletedFormDataID);
+
+    fetch(`${API_BASE_URI}/api/projects?`+new URLSearchParams({project_id: deletedFormDataID}).toString(), {
+      mode: "cors",
+      method: "DELETE",
+      headers: {"Content-Type": "application/json"}
+    }).then()
     setIndexHideTable(updatedIndexHideTable);
   };
 
@@ -329,6 +153,8 @@ export default function App() {
                   <div className="card text-center">
                     <div className="card-header d-flex justify-content-between">
                       <span>{data.name}</span>
+                      <span>Tanggal Penilaian: {data.gradingDate}</span>
+                      <span>ID: {data.id}</span>
                       <ul className="nav nav-pills card-header-pills">
                         <li className="nav-item me-2">
                           <a

@@ -1,18 +1,22 @@
 import { useState } from "react";
-import Chapter from "./Chapter";
+import ChapterF from "./Chapter";
 import Scoring from "./Scoring";
 
 interface Subaspect {
+  id: number,
   name: string;
   value: number;
 }
 
 interface Aspect {
-  name: string;
-  subaspects: Subaspect[];
+  id: number,
+  name: string,
+  totalMistakes: number,
+  subaspects: Subaspect[]
 }
 
 interface Chapter {
+  id: number,
   no_chapter: number;
   chapter_name: string;
   chapter_weight: number;
@@ -23,19 +27,21 @@ interface Score {
   operator: number;
   upper: number;
   lower: number;
-  status: string;
+  predicate: string;
 }
 
 interface FormData {
+  id: number,
   name: string;
-
-  chapters: Chapter[];
-  scores: Score[];
-  catatan: string;
-}
-
-interface FormTableProps {
-  formData: FormData;
+  gradingDate: Date,
+  chapters: Chapter[],
+  totalChapterWeight: number,
+  finalScore: number,
+  totalMistakes: number,
+  grade: string,
+  scores: Score[],
+  catatan: string,
+  status: string
 }
 
 interface FormDataProps {
@@ -90,7 +96,8 @@ export default function ConfigBox({
                       }
                     />
                   </div> */}
-                  <Chapter
+                  <ChapterF
+                    project_id={localFormData.id}
                     chapter={localFormData.chapters}
                     onUpdateChapter={(newChapters) =>
                       setLocalFormData({

@@ -12,7 +12,7 @@ interface Score {
   operator: Operator;
   upper: number;
   lower: number;
-  status: string;
+  predicate: string;
 }
 
 interface ScoreProps {
@@ -20,11 +20,13 @@ interface ScoreProps {
   onUpdateScores: (newScores: Score[]) => void;
 }
 
+const API_BASE_URI: string = import.meta.env.VITE_API_BASE_URI as string
+
 export default function Scoring({ scores, onUpdateScores }: ScoreProps) {
   const [scoresList, setScoresList] = useState<Score[]>(scores);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [newOperator, setNewOperator] = useState<Operator>(Operator.IN_RANGE);
-  const [newStatus, setNewStatus] = useState<string>("New Status");
+  const [newPredicate, setNewPredicate] = useState<string>("New Status");
   const [newUpper, setNewUpper] = useState<number>(0);
   const [newLower, setNewLower] = useState<number>(0);
 
@@ -33,7 +35,7 @@ export default function Scoring({ scores, onUpdateScores }: ScoreProps) {
     setNewOperator(scoresList[index].operator);
     setNewUpper(scoresList[index].upper);
     setNewLower(scoresList[index].lower);
-    setNewStatus(scoresList[index].status);
+    setNewPredicate(scoresList[index].predicate);
   };
 
   const handleCancelButton = () => {
@@ -51,10 +53,17 @@ export default function Scoring({ scores, onUpdateScores }: ScoreProps) {
             operator: newOperator,
             upper: newUpper,
             lower: newLower,
-            status: newStatus,
+            predicate: newPredicate,
           }
         : score
     );
+    const updatedScoreGrade = scores[index].predicate;
+    fetch(`${API_BASE_URI}/api/grades?`+new URLSearchParams({grade: updatedScoreGrade as string}), {
+      mode: "cors",
+      method: "PATCH",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({"grade": newPredicate, "upperLimit": newUpper, "lowerLimit": newLower})
+    }).then()
     setScoresList(updatedScores);
     setEditIndex(null);
     onUpdateScores(updatedScores);
@@ -67,15 +76,27 @@ export default function Scoring({ scores, onUpdateScores }: ScoreProps) {
         operator: Operator.IN_RANGE,
         upper: 1,
         lower: 0,
-        status: "New Status",
+        predicate: "New Score",
       },
     ];
+    fetch(`${API_BASE_URI}/api/grades`, {
+      mode: "cors",
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({"grade": "New Score", "upperLimit": 1, "lowerLimit": 0})
+    }).then()
     setScoresList(updatedScores);
     onUpdateScores(updatedScores);
   };
 
   const handleDeleteScore = (index: number) => {
     const updatedScores = scoresList.filter((_, i) => i !== index);
+    const deletedGrade = scores[index].predicate
+    fetch(`${API_BASE_URI}/api/grades?`+new URLSearchParams({grade: deletedGrade as string}), {
+      mode: "cors",
+      method: "DELETE",
+      headers: {"Content-Type": "application/json"}
+    }).then()
     setScoresList(updatedScores);
     onUpdateScores(updatedScores);
   };
@@ -115,8 +136,6 @@ export default function Scoring({ scores, onUpdateScores }: ScoreProps) {
                         }
                       >
                         <option value={Operator.IN_RANGE}>Range</option>
-                        <option value={Operator.GREATER_THAN}>{">"}</option>
-                        <option value={Operator.LESS_THAN}>{"<"}</option>
                         <option value={Operator.GREATER_THAN_OR_EQUAL}>
                           {">="}
                         </option>
@@ -161,20 +180,33 @@ export default function Scoring({ scores, onUpdateScores }: ScoreProps) {
                             min={0}
                           />
                         </>
-                      ) : (
-                        <>
-                          <label htmlFor="InputValue"></label>
-                          <input
-                            type="number"
-                            className="form-control"
-                            placeholder="Nilai"
-                            id="InputValue"
-                            value={newLower}
-                            onChange={(e) =>
-                              setNewLower(Number(e.target.value))
-                            }
-                          />
-                        </>
+                      ) : (newOperator === Operator.GREATER_THAN_OR_EQUAL ? 
+                            (<>
+                              <label htmlFor="InputValue"></label>
+                              <input
+                                type="number"
+                                className="form-control"
+                                placeholder="Nilai"
+                                id="InputValue"
+                                value={newLower}
+                                onChange={(e) =>
+                                  setNewLower(Number(e.target.value))
+                                }
+                              />
+                            </>)
+                            : (<>
+                              <label htmlFor="InputValue"></label>
+                              <input
+                                type="number"
+                                className="form-control"
+                                placeholder="Nilai"
+                                id="InputValue"
+                                value={newUpper}
+                                onChange={(e) =>
+                                  setNewLower(Number(e.target.value))
+                                }
+                              />
+                            </>)
                       )}
                     </td>
                     <td>
@@ -183,8 +215,8 @@ export default function Scoring({ scores, onUpdateScores }: ScoreProps) {
                         type="text"
                         className="form-control"
                         id="iInputStatus"
-                        value={newStatus}
-                        onChange={(e) => setNewStatus(e.target.value)}
+                        value={newPredicate}
+                        onChange={(e) => setNewPredicate(e.target.value)}
                       />
                     </td>
                     <td>
@@ -212,12 +244,12 @@ export default function Scoring({ scores, onUpdateScores }: ScoreProps) {
                         : score.operator === Operator.GREATER_THAN
                         ? `> ${score.lower}`
                         : score.operator === Operator.LESS_THAN
-                        ? `< ${score.lower}`
+                        ? `< ${score.upper}`
                         : score.operator === Operator.GREATER_THAN_OR_EQUAL
                         ? `>= ${score.lower}`
-                        : `<= ${score.lower}`}
+                        : `<= ${score.upper}`}
                     </td>
-                    <td>{score.status}</td>
+                    <td>{score.predicate}</td>
                     <td className="d-flex gap-2">
                       <button
                         className="btn btn-warning"

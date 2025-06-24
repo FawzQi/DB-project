@@ -1,16 +1,20 @@
 import React from "react";
 
 interface Subaspect {
+  id: number,
   name: string;
   value: number;
 }
 
 interface Aspect {
-  name: string;
-  subaspects: Subaspect[];
+  id: number,
+  name: string,
+  totalMistakes: number,
+  subaspects: Subaspect[]
 }
 
 interface Chapter {
+  id: number,
   no_chapter: number;
   chapter_name: string;
   chapter_weight: number;
@@ -21,15 +25,21 @@ interface Score {
   operator: number;
   upper: number;
   lower: number;
-  status: string;
+  predicate: string;
 }
 
 interface FormData {
+  id: number,
   name: string;
-
-  chapters: Chapter[];
-  scores: Score[];
-  catatan: string;
+  gradingDate: Date,
+  chapters: Chapter[],
+  totalChapterWeight: number,
+  finalScore: number,
+  totalMistakes: number,
+  grade: string,
+  scores: Score[],
+  catatan: string,
+  status: string
 }
 
 interface FormTableProps {
@@ -48,35 +58,12 @@ const countChapterRowLength = (chapter: Chapter) => {
   }, 1); // +1 for the chapter row itself
 };
 
-const calculateTotalChapterWeight = (formData: FormData) => {
-  return formData.chapters.reduce(
-    (total, chapter) => total + chapter.chapter_weight,
-    0
-  );
-};
-
-const calculateTotalErrors = (formData: FormData) => {
-  return formData.chapters.reduce((totalErrors, chapter) => {
-    return (
-      totalErrors +
-      chapter.aspects.reduce((aspectErrors, aspect) => {
-        return (
-          aspectErrors +
-          aspect.subaspects.reduce((subErrors, subaspect) => {
-            return subErrors + subaspect.value;
-          }, 0)
-        );
-      }, 0)
-    );
-  }, 0);
-};
-
 export default function FormTable({ formData }: FormTableProps) {
   return (
     <table className="table table-bordered text-center">
       <thead>
         <tr>
-          <th className="table-success" colSpan={6}>
+          <th className="table-success" colSpan={7}>
             Lembar Penilaian
           </th>
         </tr>
@@ -91,6 +78,7 @@ export default function FormTable({ formData }: FormTableProps) {
         <tr>
           <th rowSpan={2}>No</th>
           <th rowSpan={2}>Chapter</th>
+          <th rowSpan={2}>Bobot Chapter</th>
           <th colSpan={4} className="table-success">
             Parameter Penilaian
           </th>
@@ -103,14 +91,17 @@ export default function FormTable({ formData }: FormTableProps) {
         </tr>
       </thead>
       <tbody>
-        {formData.chapters.map((chapter) => (
-          <React.Fragment key={`chapter-${chapter.no_chapter}`}>
+        {formData.chapters.map((chapter, index) => (
+          <React.Fragment key={`chapter-${chapter.id}`}>
             <tr style={{ borderWidth: "2px", borderStyle: "solid" }}>
               <td rowSpan={countChapterRowLength(chapter)}>
-                {chapter.no_chapter}
+                {index+1}
               </td>
-              <td rowSpan={countChapterRowLength(chapter) - 1}>
+              <td rowSpan={countChapterRowLength(chapter)}>
                 {chapter.chapter_name}
+              </td>
+              <td rowSpan={countChapterRowLength(chapter)}>
+                  {chapter.chapter_weight}
               </td>
             </tr>
 
@@ -121,10 +112,7 @@ export default function FormTable({ formData }: FormTableProps) {
                 </tr>
                 {aspect.subaspects.map((subaspect, index) => (
                   <tr key={`subaspect-${index}`}>
-                    {id === chapter.aspects.length - 1 &&
-                      index === aspect.subaspects.length - 1 && (
-                        <td>Bobot Chapter : {chapter.chapter_weight}</td>
-                      )}
+                    
                     <td>{subaspect.name}</td>
                     <td>{subaspect.value}</td>
 
@@ -146,24 +134,24 @@ export default function FormTable({ formData }: FormTableProps) {
           </React.Fragment>
         ))}
         <tr>
-          <td colSpan={6} className="table-success"></td>
+          <td colSpan={7} className="table-success"></td>
         </tr>
         <tr>
           <td colSpan={2}>
-            Total Bobot Chapter : {calculateTotalChapterWeight(formData)}
+            Total Bobot Chapter : {formData.totalChapterWeight}
           </td>
-          <td>Total Kesalahan : {calculateTotalErrors(formData)}</td>
+          <td>Total Kesalahan : {formData.totalMistakes}</td>
           <td className="table-success"></td>
-          <td colSpan={2}>Predikat</td>
+          <td colSpan={3}>Predikat: {formData.grade}</td>
         </tr>
         <tr>
           <td colSpan={2}>Nilai Bobot Chapter</td>
-          <td>Total Nilai : {90 - calculateTotalErrors(formData)}</td>
+          <td>Total Nilai : {formData.finalScore}</td>
           <td className="table-success"></td>
-          <td colSpan={2}>Status</td>
+          <td colSpan={3}>Status: {formData.status}</td>
         </tr>
         <tr>
-          <td colSpan={6} className="table-success"></td>
+          <td colSpan={7} className="table-success"></td>
         </tr>
       </tbody>
       <tfoot>
@@ -175,14 +163,20 @@ export default function FormTable({ formData }: FormTableProps) {
                 {score.lower} {operatorSign[score.operator]} {score.upper}
               </td>
             )}
-            {score.operator !== 0 && (
+            {score.operator === 4 && (
+              <td>
+                {operatorSign[score.operator]}
+                {score.upper}
+              </td>
+            )}
+            {score.operator === 3 && (
               <td>
                 {operatorSign[score.operator]}
                 {score.lower}
               </td>
             )}
 
-            <td>{score.status}</td>
+            <td>{score.predicate}</td>
             {index === 0 && (
               <>
                 <td rowSpan={formData.scores.length} colSpan={3}>
