@@ -64,6 +64,13 @@ export default function Scoring({ scores, onUpdateScores }: ScoreProps) {
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({"grade": newPredicate, "upperLimit": newUpper, "lowerLimit": newLower})
     }).then()
+    //Sync project
+    fetch(`${API_BASE_URI}/api/projects/sync`, {
+    mode: "cors",
+    method: "PATCH",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({})
+    })
     setScoresList(updatedScores);
     setEditIndex(null);
     onUpdateScores(updatedScores);

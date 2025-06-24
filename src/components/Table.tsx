@@ -145,8 +145,8 @@ export default function FormTable({ formData }: FormTableProps) {
           <td colSpan={3}>Predikat: {formData.grade}</td>
         </tr>
         <tr>
-          <td colSpan={2}>Nilai Bobot Chapter</td>
-          <td>Total Nilai : {formData.finalScore}</td>
+          
+          <td colSpan={3}>Total Nilai : {formData.finalScore}</td>
           <td className="table-success"></td>
           <td colSpan={3}>Status: {formData.status}</td>
         </tr>
