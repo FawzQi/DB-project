@@ -1,5 +1,5 @@
 import AspectF from "./Aspects";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Subaspect {
   id: number,
@@ -51,9 +51,6 @@ export default function Chapter({project_id, chapter, onUpdateChapter }: Chapter
 
   // Simpan perubahan
   const handleSaveEditName = (index: number) => {
-    const updatedChapters = chapterList.map((chapter, i) =>
-      i === index ? { ...chapter, chapter_name: editText } : chapter
-    );
     const updatedChapterID = chapter[index].id as unknown
     const updatedChapterName = editText
     fetch(`${API_BASE_URI}/api/chapters?`+new URLSearchParams({chapter_id: updatedChapterID  as string}), {
@@ -62,15 +59,15 @@ export default function Chapter({project_id, chapter, onUpdateChapter }: Chapter
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({"name": updatedChapterName})
     }).then()
+    const updatedChapters = chapterList.map((chapter, i) =>
+      i === index ? { ...chapter, chapter_name: editText } : chapter
+    );
     setChapterList(updatedChapters);
     setEditingIndexName(null); // Keluar dari mode edit
     onUpdateChapter(updatedChapters); // Panggil update di sini
   };
 
   const handleSaveEditWeight = (index: number) => {
-    const updatedChapters = chapterList.map((chapter, i) =>
-      i === index ? { ...chapter, chapter_weight: parseInt(editNum) } : chapter
-    );
     const updatedChapterID = chapter[index].id as unknown
     const updatedChapterWeight = editNum
     fetch(`${API_BASE_URI}/api/chapters?`+new URLSearchParams({chapter_id: updatedChapterID  as string}), {
@@ -79,6 +76,9 @@ export default function Chapter({project_id, chapter, onUpdateChapter }: Chapter
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({"weight": updatedChapterWeight})
     }).then()
+    const updatedChapters = chapterList.map((chapter, i) =>
+      i === index ? { ...chapter, chapter_weight: parseInt(editNum) } : chapter
+    );
     setChapterList(updatedChapters);
     setEditingIndexWeight(null); // Keluar dari mode edit
     onUpdateChapter(updatedChapters); // Panggil update di sini
@@ -86,13 +86,13 @@ export default function Chapter({project_id, chapter, onUpdateChapter }: Chapter
 
   // Hapus chapter
   const handleDeleteChapter = (index: number) => {
-    const updatedChapters = chapterList.filter((_, i) => i !== index);
     const deletedChapterID = chapter[index].id as unknown
     fetch(`${API_BASE_URI}/api/chapters?`+new URLSearchParams({chapter_id: deletedChapterID as string}), {
       mode: "cors",
       method: "DELETE",
       headers: {"Content-Type": "application/json"}
     }).then()
+    const updatedChapters = chapterList.filter((_, i) => i !== index);
     setChapterList(updatedChapters);
     onUpdateChapter(updatedChapters); // Panggil update di sini
   };
@@ -100,23 +100,30 @@ export default function Chapter({project_id, chapter, onUpdateChapter }: Chapter
   // Tambah chapter baru
   const handleAddChapter = () => {
     if (newChapter.trim() === "") return; // Cegah penambahan chapter kosong
-    const newChapterObj: Chapter = {
-      id: 0,
-      no_chapter: chapter.length +1,
-      chapter_name: newChapter,
-      chapter_weight: 0,
-      aspects: [],
-    };
-    const updatedChapters = [...chapterList, newChapterObj];
     fetch(`${API_BASE_URI}/api/chapters`, {
       mode: "cors",
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({"projectID": project_id,"name": newChapter, "weight": 0})
-    }).then()
-    setChapterList(updatedChapters);
-    onUpdateChapter(updatedChapters); // Panggil update di sini
-    setNewChapter(""); // Reset input
+    }).then(()=>{fetch(`${API_BASE_URI}/api/chapters/all`, {
+        mode: "cors",
+        method: "GET"}).
+        then((tableData)=>tableData.json())
+        .then((data)=>{
+          console.log(data);
+          const chapterIDIndex = data.length-1 || 0
+          const newChapterObj: Chapter = {
+            id: data[chapterIDIndex].chapter_id,
+            no_chapter: chapter.length +1,
+            chapter_name: newChapter,
+            chapter_weight: 0,
+            aspects: [],
+          };
+          const updatedChapters = [...chapterList, newChapterObj];
+          setChapterList(updatedChapters);
+          onUpdateChapter(updatedChapters); // Panggil update di sini
+          setNewChapter(""); // Reset input
+        });});
   };
 
   return (

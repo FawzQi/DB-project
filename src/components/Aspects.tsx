@@ -36,9 +36,6 @@ export default function AspectF({chapter_id, aspect, onUpdateAspect }: AspectPro
 
   // Simpan perubahan
   const handleSaveEdit = (index: number) => {
-    const updatedAspects = aspectList.map((aspect, i) =>
-      i === index ? { ...aspect, name: editText } : aspect
-    );
     const updatedAspectID = aspect[index].id as unknown
     fetch(`${API_BASE_URI}/api/grading_parameters?`+new URLSearchParams({parameter_id: updatedAspectID as string}), {
       mode: "cors",
@@ -46,6 +43,9 @@ export default function AspectF({chapter_id, aspect, onUpdateAspect }: AspectPro
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({"name": editText})
     }).then()
+    const updatedAspects = aspectList.map((aspect, i) =>
+      i === index ? { ...aspect, name: editText } : aspect
+    );
     setAspectList(updatedAspects);
     setEditingIndex(null); // Keluar dari mode edit
     onUpdateAspect(updatedAspects); // Panggil update di sini
@@ -53,13 +53,13 @@ export default function AspectF({chapter_id, aspect, onUpdateAspect }: AspectPro
 
   // Hapus aspek
   const handleDeleteAspect = (index: number) => {
-    const updatedAspects = aspectList.filter((_, i) => i !== index);
     const deletedAspectID = aspect[index].id as unknown
     fetch(`${API_BASE_URI}/api/grading_parameters?`+new URLSearchParams({parameter_id: deletedAspectID as string}), {
       mode: "cors",
       method: "DELETE",
       headers: {"Content-Type": "application/json"},
     }).then()
+    const updatedAspects = aspectList.filter((_, i) => i !== index);
     setAspectList(updatedAspects);
     onUpdateAspect(updatedAspects); // Panggil update di sini
   };
@@ -67,16 +67,27 @@ export default function AspectF({chapter_id, aspect, onUpdateAspect }: AspectPro
   // Tambah aspek baru
   const handleAddAspect = () => {
     if (newAspect.trim() === "") return;
-    const updatedAspects = [...aspectList, {id: 0, name: newAspect, subaspects: [], totalMistakes: 0 }];
     fetch(`${API_BASE_URI}/api/grading_parameters`, {
       mode: "cors",
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({"chapterID": chapter_id,"name": newAspect})
-    }).then()
-    setAspectList(updatedAspects);
-    setNewAspect("");
-    onUpdateAspect(updatedAspects); // Panggil update di sini
+    }).then(()=>{fetch(`${API_BASE_URI}/api/grading_parameters/all`, {
+        mode: "cors",
+        method: "GET"}).
+        then((tableData)=>tableData.json())
+        .then((data)=>{
+          console.log(data);
+          const idIndex = data.length-1 || 0
+          const updatedAspects = [...aspectList, {
+            id: data[idIndex].parameter_id, 
+            name: newAspect, subaspects: [], 
+            totalMistakes: 0 }];
+          setAspectList(updatedAspects);
+          setNewAspect("");
+          onUpdateAspect(updatedAspects); // Panggil update di sini
+        });});
+    
   };
 
   return (

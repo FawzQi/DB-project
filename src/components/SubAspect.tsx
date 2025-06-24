@@ -32,40 +32,47 @@ export default function SubAspect({
   // Handle Add Subaspect
   const handleAddSubaspect = () => {
     if (newSubaspect.trim() === "") return; // Cegah input kosong
-    const newSubaspectObj = {
-      id: 0,
-      name: newSubaspect,
-      value: newSubaspectValue,
-    };
+    
     fetch(`${API_BASE_URI}/api/sub_aspects`, {
       mode: "cors",
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({"paramID": parameter_id, "name": newSubaspect, "mistakes": newSubaspectValue})
-    }).then()
-    setSubaspectList([...subaspectList, newSubaspectObj]);
-    setNewSubaspect("");
-    setNewSubaspectValue(0); // Reset input value
-    onUpdateSubaspects([...subaspectList, newSubaspectObj]);
+    }).then(()=>{fetch(`${API_BASE_URI}/api/sub_aspects/all`, {
+        mode: "cors",
+        method: "GET"}).
+        then((tableData)=>tableData.json())
+        .then((data)=>{
+          console.log(data);
+          const idIndex = data.length-1 || 0
+          const newSubaspectObj = {
+            id: data[idIndex].subaspect_id,
+            name: newSubaspect,
+            value: newSubaspectValue,
+          };
+          setSubaspectList([...subaspectList, newSubaspectObj]);
+          setNewSubaspect("");
+          setNewSubaspectValue(0); // Reset input value
+          onUpdateSubaspects([...subaspectList, newSubaspectObj]);
+        });});
+    
   };
 
   // Handle Delete Subaspect
   const handleDeleteSubaspect = (index: number) => {
-    const updatedSubaspects = subaspectList.filter((_, i) => i !== index);
     const deletedSubAspectID = subaspects[index].id as unknown
     fetch(`${API_BASE_URI}/api/sub_aspects?`+new URLSearchParams({sub_aspect_id: deletedSubAspectID as string}), {
       mode: "cors",
       method: "DELETE",
       headers: {"Content-Type": "application/json"},
     }).then()
+    const updatedSubaspects = subaspectList.filter((_, i) => i !== index);
     setSubaspectList(updatedSubaspects);
     onUpdateSubaspects(updatedSubaspects);
   };
 
   // Handle Update Subaspect Value
   const handleUpdateSubaspectValue = (index: number, value: number) => {
-    const updatedSubaspects = [...subaspectList];
-    updatedSubaspects[index].value = value;
     const updatedSubAspectID = subaspects[index].id as unknown
     fetch(`${API_BASE_URI}/api/sub_aspects?`+new URLSearchParams({sub_aspect_id: updatedSubAspectID as string}), {
       mode: "cors",
@@ -73,6 +80,8 @@ export default function SubAspect({
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({"mistakes": value})
     }).then()
+    const updatedSubaspects = [...subaspectList];
+    updatedSubaspects[index].value = value;
     setSubaspectList(updatedSubaspects);
     onUpdateSubaspects(updatedSubaspects);
   };
